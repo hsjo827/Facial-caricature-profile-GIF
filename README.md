@@ -1,107 +1,136 @@
-# 얼굴 캐리커처 프로필 이미지 및 GIF 애니메이션 생성
-### Contents
+# Face Caricature Profile Generator
 
-1. [배경 및 목적](#1-배경-및-목적)  
-2. [주최/주관 & 팀원](#2-주최주관--팀원)  
-3. [프로젝트 기간](#3-프로젝트-기간)  
-4. [프로젝트 소개](#4-프로젝트-소개)  
-   4.1 [프로젝트 과정](#41-프로젝트-과정)  
-   4.2 [모델 설명](#42-사용한-모델)  
-5. [Inference](#5-inference)  
-6. [Result](#6-result)  
-7. [발표 자료](#발표-자료)
+## Project Overview
+GitHub 프로필 등 공개적인 플랫폼에 자신의 증명사진을 올리는 것이 부담스러운 사용자들을 위해, 실제 얼굴 사진을 기반으로 사용자의 특징을 반영한 캐리커처를 생성하고 GIF 애니메이션으로 변환하는 프로젝트입니다.
 
-
-## 1. 배경 및 목적
-
-
-- 사람에 따라 GitHub 프로필 등 공개적인 플랫폼에 자신의 증명사진을 올리는 것이 부담스러울 수 있다. 
-- 실제 얼굴 사진을 기반으로 사용자의 특징을 반영한 캐리커쳐를 생성하고, GIF 애니메이션으로 변환한다.
-
-
-## 2. 주최/주관 & 팀원
-
-- 주최/주관 : 국민대학교 AI빅데이터융합경영학과 인공지능 학회 X:AI
-
-- 총 5인 [권민지, 김서령, 김진하. 유광열(팀장), 조현식]
-
-
-## 3. 프로젝트 기간 
-
-- 2024.07~ 2024.08 (2개월)
-
-
-## 4. 프로젝트 소개
-
-### 4.1. 프로젝트 과정
-
-<img src="https://github.com/user-attachments/assets/ee0d41bc-7f26-451e-b2cf-f398031ebfae" width="700">
-
-1. SAM을 사용하여 mask를 생성한다.
-2. 생성된 mask 중에서 스타일 변환을 적용하고 싶은 부분의 mask만 StyleTransfer에 입력한다.
-3. DiffStyler는 사용자의 얼굴 사진, 스타일 이미지과 mask를 입력받아서 스타일이 반영된 캐리커처를 생성한다.
-4. Image2Video 모델인 LivePortrait에 캐리커처 이미지와 driving video를 입력하여 GIF로 변환한 최종 결과물을 출력한다. 
-
-
-### 4.2. 사용한 모델
-
-**SAM**  
-<img src="https://github.com/user-attachments/assets/2592fbc2-b439-4292-9e74-8664744d557f" width="700">
-
-**DiffStyler**  
-<img src="https://github.com/user-attachments/assets/a9087fd9-1cda-44ca-a6d5-41e207e69a56" width="700">
-
-**Image2Video**  
-<img src="https://github.com/user-attachments/assets/89968ca8-ac13-496d-8e77-96734319e067" width="700">
-
-
-## 5. Inference
-1. git clone
+## Project Structure
 ```
-git clone https://github.com/yugwangyeol/2024_XAI_ADV_CV1_Toyproject.git
+📦 Face-Caricature-Profile
+├── 📂 DiffStyler          # 스타일 변환 구현
+├── 📂 Gradio             # WebUI 구현
+├── 📂 input              # 입력 이미지 저장
+├── 📂 LivePortrait       # 이미지-비디오 변환
+├── 📂 results            # 생성 결과물
+├── 📂 SAM               # Segment Anything Model
+├── 📂 발표자료           # 발표 자료
+├── 📂 사진조사           # 연구 자료
+├── 📄 Gradio_main.ipynb # Colab 노트북
+├── 📄 main.py           # 메인 실행 파일
+└── 📄 README.md         # 프로젝트 문서
 ```
 
-2. 필요한 패키지를 다운로드 해주세요.
+## Technical Process
+
+### 1. Face Detection and Segmentation
+- SAM을 사용하여 정밀한 얼굴 마스크 생성
+- 스타일 변환을 위한 자동 마스크 선택
+
+### 2. Style Transfer
+- DiffStyler를 활용한 예술적 스타일 변환
+- 개인의 특징을 유지하면서 예술적 스타일 적용
+
+### 3. Animation Generation
+- LivePortrait를 통한 이미지-비디오 변환
+- 다양한 감정 표현 가능
+- 고품질 GIF 출력
+
+## Installation & Setup
+
+### Prerequites
+```bash
+torch
+torchvision
+segment-anything
+gradio
 ```
-cd 2024_XAI_ADV_CV1_Toyproject
+
+### Install
+1. Git clone
+```bash
+git clone https://github.com/username/Face-Caricature-Profile.git
+```
+
+2. Install
+```bash
+cd Face-Caricature-Profile
+
+# SAM install
 pip install git+https://github.com/facebookresearch/segment-anything.git
 pip install gradio
 
-# DiffStyler
+# DiffStyler install
 cd DiffStyler
 pip install -r requirements.txt
-pip install "jax[cuda12_pip]==0.4.23" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+pip install "jax[cuda12_pip]==0.4.23"
 
-# LivePortrait
+# LivePortrait install
 cd ../LivePortrait
 pip install -r requirements.txt
-cd ../
 ```
 
-3. 아래 코드를 실행하면 Gradio가 실행됩니다.
-```
-python main.py
-```
-- Colab 환경에서는 `Gradio_main.ipynb` 파일을 실행하여, 코드를 차례대로 실행하면 됩니다.
+## Usage Guide
 
-  
-## 6. Result
+### WebUI 사용법
+1. Gradio 인터페이스 실행
+```bash
+python Formula_WebUI.py
+```
+2. UI에 사진 드래그 앤 드롭
+3. 원하는 스타일과 감정 선택
+4. 캐리커처 생성 및 다운로드
+
+### 결과 미리보기
+
 | Original | Mask | Style Image | DiffStyler |
 |----------|----------|----------|----------|
 |<img src="https://github.com/user-attachments/assets/95c76841-a88e-4f27-b022-a750dc66fead" width="710"> | <img src="https://github.com/user-attachments/assets/2b0e063a-2c2f-48bd-9b15-f15edfd482c3" width="800"> | <img src="https://github.com/user-attachments/assets/901b32c6-a187-400c-996f-6820f974cc0c" width="660" > |<img src = "https://github.com/user-attachments/assets/d8ec6390-6463-4aaa-b16e-3688634972c4" width="690"> | 
 
-| Driving Video | LiveProtrait |
+| Driving Video | LivePortrait Result |
 |----------|----------|
 |<img src="https://github.com/user-attachments/assets/9788d76b-2067-47f2-a9bd-347152c9b335" height = "500"> | <img src ="https://github.com/user-attachments/assets/ae8b9eff-6a18-4a98-ac39-e471cf25c927" height = "500"> |
 
-| Gradio |
+| WebUI Interface |
 |----------|
 |<img src="https://github.com/user-attachments/assets/97057a69-5d6a-4725-b5eb-448a3c9da02d"> |
 
-## 발표 자료
-[X:AI ADV CV1팀 Toy Project 중간발표.pdf](https://github.com/yugwangyeol/2024_XAI_ADV_CV1_Toyproject/raw/main/발표자료/XAI_CV_Toy_project_중간발표.pdf)
+## Team Information
+- **소속**: 국민대학교 AI빅데이터융합경영학과 인공지능 학회 X:AI Advanced Computer Vision Team 1
+- **팀원**: 권민지, 김서령, 김진하, 유광열(팀장), 조현식
 
-[X:AI ADV CV1팀 Toy Project 최종발표.pdf](https://github.com/yugwangyeol/2024_XAI_ADV_CV1_Toyproject/raw/main/발표자료/XAI_CV_Toy_project_최종발표.pdf)  
+## Project Duration 
+2024.07 ~ 2024.08 (2개월)
 
-[발표 영상](https://youtu.be/act0FJvckIY)
+## References
+- [중간 발표 자료](https://github.com/yugwangyeol/2024_XAI_ADV_CV1_Toyproject/raw/main/발표자료/XAI_CV_Toy_project_중간발표.pdf)
+- [최종 발표 자료](https://github.com/yugwangyeol/2024_XAI_ADV_CV1_Toyproject/raw/main/발표자료/XAI_CV_Toy_project_최종발표.pdf)
+- [발표 영상](https://youtu.be/act0FJvckIY)
 
+## Citation
+```bibtex
+@misc{li2024diffstyler,
+      title={DiffStyler: Diffusion-based Localized Image Style Transfer}, 
+      author={Shaoxu Li},
+      year={2024},
+      eprint={2403.18461},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
+
+```bash
+@article{kirillov2023segany,
+  title={Segment Anything},
+  author={Kirillov, Alexander and Mintun, Eric and Ravi, Nikhila and Mao, Hanzi and Rolland, Chloe and Gustafson, Laura and Xiao, Tete and Whitehead, Spencer and Berg, Alexander C. and Lo, Wan-Yen and Doll{\'a}r, Piotr and Girshick, Ross},
+  journal={arXiv:2304.02643},
+  year={2023}
+}
+```
+
+```bash
+@article{guo2024liveportrait,
+  title   = {LivePortrait: Efficient Portrait Animation with Stitching and Retargeting Control},
+  author  = {Guo, Jianzhu and Zhang, Dingyun and Liu, Xiaoqiang and Zhong, Zhizhou and Zhang, Yuan and Wan, Pengfei and Zhang, Di},
+  journal = {arXiv preprint arXiv:2407.03168},
+  year    = {2024}
+}
+```
